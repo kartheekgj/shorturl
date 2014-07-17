@@ -1,7 +1,11 @@
 <?php
 
-$cmd	=	trim($_POST['cmd']);
+require('./config.php');
 
+$args = explode("/",$_SERVER['PHP_SELF']);
+
+$const_shortUrl = 'http://'.$_SERVER['HTTP_HOST'].'/'.$args[1].'/'.$args[2].'/'.$args[3].'/testmongo.php';
+$cmd			=	trim($_POST['cmd']);
 
 switch($cmd)
 {
@@ -15,14 +19,15 @@ switch($cmd)
 }
 
 
-
 function _getConfig()
 {
+	
 	try
 	{
-		$m = new MongoClient();
-		$db = $m->selectDB('shorturldb');
-		return new MongoCollection($db, 'shorturl');
+		global $conn_url;
+		$m = new MongoClient($conn_url);
+		$db = $m->selectDB(DBNAME);
+		return new MongoCollection($db, COLLECTION_NAME);
 	}
 	catch(Exception $e)
 	{
@@ -53,14 +58,25 @@ function _insertData($url)
 {
 	try
 	{
+		global $const_shortUrl;
 		$collection = _getConfig();
+		
 		if( ! $collection)
-			throw new Exception('Unable to connect');
+			throw new Exception('Unable to connect to database');
 		else
 		{
 			$shortUrlCode = _randomCode();
 			$insert = ['lu' => $url , 'sc'=> $shortUrlCode];
-			$resp	=	$collection->insert($insert);
+			try {
+				$resp	=	$collection->insert($insert);
+				if($resp["ok"])
+					echo json_encode(['error' => 0,'sc'=> $const_shortUrl.'/'.$shortUrlCode]);
+				else
+					throw new Exception('Unable to insert Data');
+				
+			} catch(MongoCursorException $e) {
+				echo json_encode(['error' => 1,'message'=> $e->getMessage()]);
+			}
 		}	
 	}
 	catch(Exception $e)
@@ -87,12 +103,14 @@ function _randomCode($length = 8) {
 	  $key = array_rand($final_array);
 	  $alphanumeric .= $final_array[$key];
 	}
+	
 	if(_ExistsGetData($alphanumeric))
 	{
 		return $alphanumeric;
 	}
 	else
-		_randomCode(); // recursion happens only in a worst case scenario
+		_randomCode(); //worst case scenario
+		
 }
   
 function _ExistsGetData($sc)
@@ -101,7 +119,7 @@ function _ExistsGetData($sc)
 	{
 		$collection = _getConfig();
 		if( ! $collection)
-			throw new Exception('Unable to connect');
+			throw new Exception('Unable to connect to database');
 		else
 		{
 			$shortCode = ['sc' => $sc];
@@ -110,7 +128,7 @@ function _ExistsGetData($sc)
 				$data_coll[] = $doc;
 			}
 			if( ! is_array($data_coll))
-				return $data_coll;
+				return true;
 			else 
 				return false;
 		}
@@ -139,13 +157,14 @@ function fnGetData($data = [])
 {
 	try
 	{
+		global $const_shortUrl;
 		$collection = _getConfig();
 		if( ! $collection)
-			throw new Exception('Unable to connect');
+			throw new Exception('Unable to connect to database');
 		else
 		{
 			if( ! is_array($data))
-				throw new Exception('Unable to connect');
+				throw new Exception('Invalid data parsed.');
 			else if( ! empty($data))
 			{
 				$sc = _extractCode($url);
@@ -155,7 +174,7 @@ function fnGetData($data = [])
 				foreach ($data as $doc) {
 					$i++;
 					$data_coll[$i]['longUrl'] = $doc['lu'];
-					$data_coll[$i]['shorUrl'] = $doc['sc'];
+					$data_coll[$i]['shortUrl'] = $const_shortUrl.'/'.$doc['sc'];
 				}
 			}
 			else
@@ -165,7 +184,7 @@ function fnGetData($data = [])
 				foreach ($data as $doc) {
 					$i++;
 					$data_coll[$i]['longUrl'] = $doc['lu'];
-					$data_coll[$i]['shorUrl'] = $doc['sc'];
+					$data_coll[$i]['shortUrl'] = $const_shortUrl.'/'.$doc['sc'];
 				}
 			}
 		}	
