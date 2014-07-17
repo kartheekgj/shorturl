@@ -6,23 +6,36 @@
 	</head>
 	<body>
 		<div id="error_common_div" style="display:none;"></div>
-		<div id="container">
-			<label>Please Enter the URL :</label>
-			<input type="text" placeholder="Enter the URL" id="txtUrl" name="txtUrl" />
-			<input type="submit" value="submit" id="butSubmit"/>
-			<label id="shortenUrl" style="display:none;"></label>
+		<div>
+			<h3><strong>Please Enter the URL to convert into Short URL</strong></h3>
+			<div id="container">
+				<label>Please Enter the URL :</label>
+				<input type="text" placeholder="Enter the URL" id="txtUrl" name="txtUrl" />
+				<input type="submit" value="Convert" id="butSubmit"/>
+				<input type="submit" value="Coverting....." id="butProc" style="display:none;"/>
+				<p>
+					<label>Short Url for the Given Long URL is : </label>
+					<label id="shortenUrl" style="display:none;"></label>
+				</p>
+			</div>
 		</div>
-		<div id="url_data">
-			
+		<div>
+			<h3><strong></strong></h3>
+			<div id="url_data">
+			</div>
 		</div>
+		
 	</body>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script>
+		
 		var url =
 		{
 			regex_url : /((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)/i,
 			subData : function()
 			{
+				$('#error_common_div,#shortenUrl').hide();
+				
 				if( ! url.regex_url.test($.trim($("#txtUrl").val())))
 				{
 					alert('Please enter a valid URL');
@@ -30,48 +43,72 @@
 				}
 				else
 				{
+					$('#butSubmit').hide();
+					$('#butProc').show();
 					$.ajax({
 						cache	:	false,
 						type	:	'POST',
 						dataType:	'JSON',
 						url		:	"./shortdb.php",			
 						data	:	{
-							'url'	:	$.trim($("#txtUrl").val())
+							'cmd'		:	'convert',
+							'url'		:	$.trim($("#txtUrl").val())
 						},
 						error	:	function(jqXHR)
 						{
 							if (jqXHR.status === 400 || jqXHR.status === 500)
-								$('#error_common_div').text(jqXHR.responseText).show().delay(3000).fadeOut();
+								$('#error_common_div').text(jqXHR.responseText).show();
+							
 						},
 						success	:	function(data)
 						{	
 							if(data.error === 0)
 								$("#shortenUrl").html(data.sc).show();
 							else
-								$('#error_common_div').text(data.message).show().delay(3000).fadeOut();
+								$('#error_common_div').text(data.message).show();
+						},
+						complete : function()
+						{
+							$("#txtUrl").val('');
+							$('#butSubmit').show();
+							$('#butProc').hide();
 						}
 					});
 				}
 			},
 			getData : function()
 			{
+				$('#error_common_div,#url_data').hide();
 				$.ajax({
 					cache	:	false,
 					type	:	'POST',
 					dataType:	'JSON',
-					url		:	"./shortdb.php",			
+					url		:	"./shortdb.php",
+					data	:	{
+						'cmd'	:	'getData'
+					},
 					error	:	function(jqXHR)
 					{
 						if (jqXHR.status === 400 || jqXHR.status === 500)
-							$('#error_common_div').text(jqXHR.responseText).show().delay(3000).fadeOut();
+							$('#error_common_div').text(jqXHR.responseText).show();
 					},
 					success	:	function(data)
 					{	
 						if(data.error === 0)
-							for(var i = 0; i< data.dbdata.length;i++)
-							$("#url_data").html().show();
+						{
+							var data_html = '<ol>';
+							for(var i = 0; i< Object.keys(data.dbdata).length;i++)
+							{
+								data_html += '<li  style="margin-bottom:10px;">';
+								data_html +=	'<label>Long URL : '+data.dbdata[i+1]['longUrl'];
+								data_html +=	'<br /> Short URL : '+data.dbdata[i+1]['shortUrl']+'</label>';
+								data_html += '</li>';	
+							}
+							data_html += '</ol>';
+							$("#url_data").html(data_html).show();
+						}
 						else
-							$('#error_common_div').text(data.message).show().delay(3000).fadeOut();
+							$('#error_common_div').text(data.message).show();
 					}
 				});
 			}
@@ -81,8 +118,7 @@
 				$("#butSubmit").click(function(){
 					url.subData();
 				});
-			
+			url.getData();
 		})
-		
 	</script>
 </html>
