@@ -1,0 +1,88 @@
+<html>
+	<head>
+		<title>
+			Create a Short URL
+		</title>
+	</head>
+	<body>
+		<div id="error_common_div" style="display:none;"></div>
+		<div id="container">
+			<label>Please Enter the URL :</label>
+			<input type="text" placeholder="Enter the URL" id="txtUrl" name="txtUrl" />
+			<input type="submit" value="submit" id="butSubmit"/>
+			<label id="shortenUrl" style="display:none;"></label>
+		</div>
+		<div id="url_data">
+			
+		</div>
+	</body>
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script>
+		var url =
+		{
+			regex_url : /((?:https?\:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)/i,
+			subData : function()
+			{
+				if( ! url.regex_url.test($.trim($("#txtUrl").val())))
+				{
+					alert('Please enter a valid URL');
+					return false;
+				}
+				else
+				{
+					$.ajax({
+						cache	:	false,
+						type	:	'POST',
+						dataType:	'JSON',
+						url		:	"./shortdb.php",			
+						data	:	{
+							'url'	:	$.trim($("#txtUrl").val())
+						},
+						error	:	function(jqXHR)
+						{
+							if (jqXHR.status === 400 || jqXHR.status === 500)
+								$('#error_common_div').text(jqXHR.responseText).show().delay(3000).fadeOut();
+						},
+						success	:	function(data)
+						{	
+							if(data.error === 0)
+								$("#shortenUrl").html(data.sc).show();
+							else
+								$('#error_common_div').text(data.message).show().delay(3000).fadeOut();
+						}
+					});
+				}
+			},
+			getData : function()
+			{
+				$.ajax({
+					cache	:	false,
+					type	:	'POST',
+					dataType:	'JSON',
+					url		:	"./shortdb.php",			
+					error	:	function(jqXHR)
+					{
+						if (jqXHR.status === 400 || jqXHR.status === 500)
+							$('#error_common_div').text(jqXHR.responseText).show().delay(3000).fadeOut();
+					},
+					success	:	function(data)
+					{	
+						if(data.error === 0)
+							for(var i = 0; i< data.dbdata.length;i++)
+							$("#url_data").html().show();
+						else
+							$('#error_common_div').text(data.message).show().delay(3000).fadeOut();
+					}
+				});
+			}
+		};
+		
+		$(document).ready(function(){
+				$("#butSubmit").click(function(){
+					url.subData();
+				});
+			
+		})
+		
+	</script>
+</html>
