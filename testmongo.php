@@ -17,8 +17,8 @@ if(empty($sc))
 else
 {
 	
-	$m = new MongoClient();
-	$db = $m->selectDB('shorturldb');
+	$m = new MongoClient("mongodb://kartheekgj:gjkgjk@ds029837.mongolab.com:29837/gj");
+	$db = $m->selectDB('gj');
 	$collection = new MongoCollection($db, 'shorturl');
 	$search = ['sc'=> $sc];
 	$data = $collection->find($search);
@@ -33,7 +33,7 @@ else
 	if(is_array($data_coll) && count($data_coll) > 0)
 	{
 		$blnLink = true;
-		$message = 'The long URL for the ShortCode '. $data_coll[$i]['shorUrl'] .' is <a href="'.$data_coll[1]['longurl'].'">'.$data_coll[$i]['longUrl'].'</a>';
+		$message = '<p>The long URL for the ShortCode <strong>'. $data_coll[$i]['shorUrl'] .'</strong> is <a href="'.$data_coll[1]['longurl'].'">'.$data_coll[$i]['longUrl'].'</a></p>';
 	}
 	else 
 		$message = 'No Short url found with this shortcode';
