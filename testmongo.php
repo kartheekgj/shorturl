@@ -1,5 +1,7 @@
 <?php
 
+require('./config.php');
+
 $args = explode("/",$_SERVER['REQUEST_URI']);
 
 $p1 = trim($args[1]) ;
@@ -9,17 +11,21 @@ $sc	=	'';
 $message	=	'';
 $sc	=	trim($args[(count($args)-1)]);
 
-$conn = 
-
 
 if(empty($sc))
 	$message = 'No Short url found with this shortcode';
 else
 {
 	
-	$m = new MongoClient("mongodb://kartheekgj:gjkgjk@ds029837.mongolab.com:29837/gj");
-	$db = $m->selectDB('gj');
-	$collection = new MongoCollection($db, 'shorturl');
+	$m = new MongoClient($conn_url);
+	$db = $m->selectDB(DBNAME);
+	$collection = new MongoCollection($db, COLLECTION_NAME);
+	if( ! $collection)
+	{
+		echo 'Unable to connect to Database';
+		exit;
+	}
+		
 	$search = ['sc'=> $sc];
 	$data = $collection->find($search);
 	
@@ -29,11 +35,10 @@ else
 		$data_coll[$i]['longUrl'] = $doc['lu'];
 		$data_coll[$i]['shorUrl'] = $doc['sc'];
 	}
-	print_r($data_coll);
 	if(is_array($data_coll) && count($data_coll) > 0)
 	{
 		$blnLink = true;
-		$message = '<p>The long URL for the ShortCode <strong>'. $data_coll[$i]['shorUrl'] .'</strong> is <a href="'.$data_coll[1]['longurl'].'">'.$data_coll[$i]['longUrl'].'</a></p>';
+		$message = '<p>The long URL for the ShortURL <strong> http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'</strong> is <a href="'.$data_coll[1]['longurl'].'">'.$data_coll[$i]['longUrl'].'</a></p>';
 	}
 	else 
 		$message = 'No Short url found with this shortcode';
