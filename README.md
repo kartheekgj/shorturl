@@ -1,9 +1,11 @@
 shorturl
 ========
 
+
+Demo : <a href="http://shorturl-kartheekgj.rhcloud.com/" target="_blank">http://shorturl-kartheekgj.rhcloud.com/</a>
+
 It worked as you download make sure all the files in one folder.<br/>
 Make sure that you have internet connection so that i can connect with my mongodb on cloud.<br/>
-Thanks for <a href="https://mongolab.com" target="_blank">https://mongolab.com</a> for providing me free mongodb.<br/>
 Please change the config of the mongodb that are present in the config.php file.<br/>
 You can change the url of the connection based on your host<br/>
 
