@@ -2,7 +2,7 @@ shorturl
 ========
 
 
-Demo : <a href="http://shorturl-kartheekgj.rhcloud.com/" target="_blank">http://shorturl-kartheekgj.rhcloud.com/</a>
+Demo : http://shorturl-kartheekgj.rhcloud.com/
 
 It worked as you download make sure all the files in one folder.<br/>
 Make sure that you have internet connection so that i can connect with my mongodb on cloud.<br/>
