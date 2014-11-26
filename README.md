@@ -11,16 +11,16 @@ You can change the url of the connection based on your host<br/>
 
 
 Here are some of the input output :
-<p>my example static shorturl base is http://localhost/exp/hindu/shorturl/testmongo.php this may be ur short url http://example.com</p>
+<p>my example static shorturl base is MYSHORTURL+/testmongo.php this may be ur short url http://example.com</p>
 
 <ol>
 <li>
 Long URL : https://mongolab.com/databases/gj/collections/shorturl <br/>
-Short URL : http://localhost/exp/hindu/shorturl/testmongo.php/f8WxPcFY
+Short URL : MYSHORTURL+/testmongo.php/f8WxPcFY
 </li>
 
 <li>
 Long URL : https://mongolab.com/databases/gj/collections/shorturl <br/>
-Short URL : http://localhost/exp/hindu/shorturl/testmongo.php/YjWDiEs8
+Short URL : MYSHORTURL+/testmongo.php/YjWDiEs8
 </li>
 </ol>
